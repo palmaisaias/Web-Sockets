@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Socket Chat Room</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Chatty Chat</h1>
+        <form id="message-form" onsubmit="addMessage(event)">
+            <input type="text" id="message-input" placeholder="Type your message...">
+            <button type="submit" id="message-btn">Send</button>
+        </form>
+        <div id="chat-box"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+    <script>
+        const socket = io()
+        const form = document.getElementById('message-form')
+        const input = document.getElementById('message-input')
+        const chatBox = document.getElementById('chat-box')
+
+        console.log(form)
+
+        const addMessage = (event) => {
+            event.preventDefault()
+            const message = input.value;
+
+            if (message != '') {
+                socket.emit('message', message)
+            }
+            input.value = ''
+        }
+
+        socket.on('message', function(message) {
+            const p = document.createElement('p')
+            p.textContent = message
+            chatBox.appendChild(p)
+            chatBox.scrollTop = chatBox.scrollHeight
+        })
+
+        socket.on('connect', function() {
+            socket.emit('message', 'New User Connected')
+        })
+    </script>
+</body>
+</html>
